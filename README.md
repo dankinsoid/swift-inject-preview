@@ -17,7 +17,7 @@ For SwiftUI views, the `InjectPreview` macro can be used like this:
 ```swift
 import SwiftUI
 
-@InjectPreview {
+#InjectPreview {
     Text("Hello, World!")
 }
 ```
@@ -69,7 +69,7 @@ import PackageDescription
 let package = Package(
   name: "SomeProject",
   dependencies: [
-    .package(url: "https://github.com/dankinsoid/swift-inject-preview.git", from: "1.0.5")
+    .package(url: "https://github.com/dankinsoid/swift-inject-preview.git", from: "1.0.6")
   ],
   targets: [
     .target(
