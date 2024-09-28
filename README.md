@@ -1,25 +1,65 @@
-# ${NAME}
+# SwiftInjectPreview
 
-[![CI Status](https://img.shields.io/travis/dankinsoid/${NAME}.svg?style=flat)](https://travis-ci.org/dankinsoid/${NAME})
-[![Version](https://img.shields.io/cocoapods/v/${NAME}.svg?style=flat)](https://cocoapods.org/pods/${NAME})
-[![License](https://img.shields.io/cocoapods/l/${NAME}.svg?style=flat)](https://cocoapods.org/pods/${NAME})
-[![Platform](https://img.shields.io/cocoapods/p/${NAME}.svg?style=flat)](https://cocoapods.org/pods/${NAME})
+This repository contains custom Swift macros for use with the [InjectionIII](https://github.com/johnno1962/InjectionIII) tool, allowing you to preview and inject SwiftUI views, `UIView`s, and `UIViewController`s into a running application without needing to restart the app. The macros generate both live previews for the Xcode canvas and runtime injections for InjectionIII.
 
+## Features
 
-## Description
-This repository provides
+- **SwiftUI View Previews**: Use the `InjectPreview` macro to display a SwiftUI view in a running application or Xcode canvas.
+- **UIKit Previews**: Previews for `UIView` and `UIViewController` objects can be injected similarly, streamlining UIKit-based UI development.
+- **Debug Mode Only**: These macros are available only in DEBUG builds, ensuring they do not affect production performance.
 
-## Example
-
-```swift
-
-```
 ## Usage
 
- 
+### SwiftUI
+
+For SwiftUI views, the `InjectPreview` macro can be used like this:
+
+```swift
+import SwiftUI
+
+@InjectPreview {
+    Text("Hello, World!")
+}
+```
+
+This will inject the view into a running application and also show it in the Xcode canvas, enabling real-time updates.
+
+> [!TIP]
+> You can use SwiftUI property wrappers like `@State`, `@Binding`, and `@EnvironmentObject` inside the `InjectPreview` macro.
+
+### UIKit
+
+For `UIView` or `UIViewController`, similar macros are available. Example usage:
+
+#### UIView
+
+```swift
+@InjectPreview {
+    let label = UILabel()
+    label.text = "Hello, UIView!"
+    return label
+}
+```
+
+#### UIViewController
+
+```swift
+@InjectPreview {
+    let controller = UIViewController()
+    controller.view.backgroundColor = .blue
+    return controller
+}
+```
+
+## Requirements
+
+- Swift 5.9+
+- InjectionIII tool (latest version)
+- These macros are limited to DEBUG builds only.
+
 ## Installation
 
-1. [Swift Package Manager](https://github.com/apple/swift-package-manager)
+Add this repository to your project and ensure that the `InjectionIII` tool is set up and running during development. The `@InjectPreview` macros can be used immediately in your codebase following the examples above.
 
 Create a `Package.swift` file.
 ```swift
@@ -29,24 +69,19 @@ import PackageDescription
 let package = Package(
   name: "SomeProject",
   dependencies: [
-    .package(url: "https://github.com/dankinsoid/${NAME}.git", from: "0.0.1")
+    .package(url: "https://github.com/dankinsoid/SwiftInjectPreview.git", from: "0.0.1")
   ],
   targets: [
-    .target(name: "SomeProject", dependencies: ["${NAME}"])
+    .target(name: "SomeProject", dependencies: ["SwiftInjectPreview"])
   ]
 )
 ```
-```ruby
-$ swift build
+```swift
+@_exported import SwiftInjectPreview
 ```
 
-2.  [CocoaPods](https://cocoapods.org)
-
-Add the following line to your Podfile:
-```ruby
-pod '${NAME}'
-```
-and run `pod update` from the podfile directory first.
+> [!NOTE]
+> This macro does not add InjectionIII to your target. It is recommended to use [HotReloading](https://github.com/johnno1962/HotReloading) or other similar packages, or add InjectionIII to your project manually.
 
 ## Author
 
@@ -54,4 +89,4 @@ dankinsoid, voidilov@gmail.com
 
 ## License
 
-${NAME} is available under the MIT license. See the LICENSE file for more info.
+SwiftInjectPreview is available under the MIT license. See the LICENSE file for more info.
