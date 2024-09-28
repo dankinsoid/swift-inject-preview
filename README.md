@@ -69,10 +69,15 @@ import PackageDescription
 let package = Package(
   name: "SomeProject",
   dependencies: [
-    .package(url: "https://github.com/dankinsoid/SwiftInjectPreview.git", from: "1.0.1")
+    .package(url: "https://github.com/dankinsoid/swift-inject-preview.git", from: "1.0.2")
   ],
   targets: [
-    .target(name: "SomeProject", dependencies: ["SwiftInjectPreview"])
+    .target(
+      name: "SomeProject", 
+      dependencies: [
+				  .product(name: "SwiftInjectPreview", package: "swift-inject-preview"),
+        ]
+      )
   ]
 )
 ```
