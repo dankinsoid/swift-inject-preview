@@ -1,10 +1,10 @@
 # SwiftInjectPreview
 
-This repository contains custom Swift macros for use with the [InjectionIII](https://github.com/johnno1962/InjectionIII) tool, allowing you to preview and inject SwiftUI views, `UIView`s, and `UIViewController`s into a running application without needing to restart the app. The macros generate both live previews for the Xcode canvas and runtime injections for InjectionIII.
+This repository contains custom Swift macros for use with the [InjectionIII](https://github.com/johnno1962/InjectionIII) tool, allowing you to preview and inject SwiftUI views, `UIView`s, and `UIViewController`s into a running application without needing to restart the app.
 
 ## Features
 
-- **SwiftUI View Previews**: Use the `InjectPreview` macro to display a SwiftUI view in a running application or Xcode canvas.
+- **SwiftUI View Previews**: Use the `InjectPreview` macro to display a SwiftUI view in a running application.
 - **UIKit Previews**: Previews for `UIView` and `UIViewController` objects can be injected similarly, streamlining UIKit-based UI development.
 - **Debug Mode Only**: These macros are available only in DEBUG builds, ensuring they do not affect production performance.
 
@@ -34,7 +34,7 @@ For `UIView` or `UIViewController`, similar macros are available. Example usage:
 #### UIView
 
 ```swift
-@InjectPreview {
+#InjectPreview {
     let label = UILabel()
     label.text = "Hello, UIView!"
     return label
@@ -44,7 +44,7 @@ For `UIView` or `UIViewController`, similar macros are available. Example usage:
 #### UIViewController
 
 ```swift
-@InjectPreview {
+#InjectPreview {
     let controller = UIViewController()
     controller.view.backgroundColor = .blue
     return controller
@@ -69,7 +69,7 @@ import PackageDescription
 let package = Package(
   name: "SomeProject",
   dependencies: [
-    .package(url: "https://github.com/dankinsoid/swift-inject-preview.git", from: "1.0.4")
+    .package(url: "https://github.com/dankinsoid/swift-inject-preview.git", from: "1.0.5")
   ],
   targets: [
     .target(
