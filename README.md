@@ -25,7 +25,7 @@ import SwiftUI
 This will inject the view into a running application and also show it in the Xcode canvas, enabling real-time updates.
 
 > [!TIP]
-> You can use SwiftUI property wrappers like `@State`, `@Binding`, and `@EnvironmentObject` inside the `InjectPreview` macro.
+> You can use SwiftUI property wrappers like `@State` or `@Environment` inside the `InjectPreview` macro.
 
 ### UIKit
 
@@ -69,7 +69,7 @@ import PackageDescription
 let package = Package(
   name: "SomeProject",
   dependencies: [
-    .package(url: "https://github.com/dankinsoid/SwiftInjectPreview.git", from: "1.0.0")
+    .package(url: "https://github.com/dankinsoid/SwiftInjectPreview.git", from: "1.0.1")
   ],
   targets: [
     .target(name: "SomeProject", dependencies: ["SwiftInjectPreview"])
