@@ -6,6 +6,7 @@ This repository contains custom Swift macros for use with the [InjectionIII](htt
 
 - **SwiftUI View Previews**: Use the `InjectPreview` macro to display a SwiftUI view in a running application.
 - **UIKit Previews**: Previews for `UIView` and `UIViewController` objects can be injected similarly, streamlining UIKit-based UI development.
+- **AppKit Previews**: Previews for `NSView` and `NSViewController` objects can be injected similarly, streamlining AppKit-based UI development.
 - **Debug Mode Only**: These macros are available only in DEBUG builds, ensuring they do not affect production performance.
 
 ## Usage
@@ -27,9 +28,9 @@ This will inject the view into a running application and also show it in the Xco
 > [!TIP]
 > You can use SwiftUI property wrappers like `@State` or `@Environment` inside the `InjectPreview` macro.
 
-### UIKit
+### UIKit / AppKit
 
-For `UIView` or `UIViewController`, similar macros are available. Example usage:
+For `UIView`/`NSView` or `UIViewController`/`NSViewController`, similar macros are available. Example usage:
 
 #### UIView
 
@@ -69,7 +70,7 @@ import PackageDescription
 let package = Package(
   name: "SomeProject",
   dependencies: [
-    .package(url: "https://github.com/dankinsoid/swift-inject-preview.git", from: "1.0.6")
+    .package(url: "https://github.com/dankinsoid/swift-inject-preview.git", from: "1.0.7")
   ],
   targets: [
     .target(
