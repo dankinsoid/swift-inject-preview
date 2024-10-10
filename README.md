@@ -32,8 +32,6 @@ This will inject the view into a running application and also show it in the Xco
 
 For `UIView`/`NSView` or `UIViewController`/`NSViewController`, similar macros are available. Example usage:
 
-#### UIView
-
 ```swift
 #InjectPreview {
     let label = UILabel()
@@ -42,13 +40,17 @@ For `UIView`/`NSView` or `UIViewController`/`NSViewController`, similar macros a
 }
 ```
 
-#### UIViewController
+### XCode canvas
 
+> [!TIP]
+> To make this preview work with the Xcode canvas, wrap the body of this macro in a PreviewProvider type.
 ```swift
-#InjectPreview {
-    let controller = UIViewController()
-    controller.view.backgroundColor = .blue
-    return controller
+enum Previews: PreviewProvider {
+    #InjectPreview {
+        let text = NSText()
+        text.string = "Hello, World!"
+        return text
+    }
 }
 ```
 
@@ -70,7 +72,7 @@ import PackageDescription
 let package = Package(
   name: "SomeProject",
   dependencies: [
-    .package(url: "https://github.com/dankinsoid/swift-inject-preview.git", from: "1.0.7")
+    .package(url: "https://github.com/dankinsoid/swift-inject-preview.git", from: "1.1.0")
   ],
   targets: [
     .target(

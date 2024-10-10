@@ -17,7 +17,7 @@ struct InjectPreviewMacrosPlugin: CompilerPlugin {
 		InjectAppKitViewPreviewMacro.self,
 		InjectUIViewControllerPreviewMacro.self,
 		InjectNSViewPreviewMacro.self,
-		InjectNSViewControllerPreviewMacro.self,
+		InjectNSViewControllerPreviewMacro.self
 	]
 }
 
@@ -28,7 +28,7 @@ public struct InjectUIViewPreviewMacro: DeclarationMacro {
 		in context: some MacroExpansionContext
 	) throws -> [DeclSyntax] {
 		let (name, statement) = try nameAndStatement(of: node, in: context)
-		return [
+		var result: [DeclSyntax] = [
 			"""
 			#if DEBUG
 			final class \(name) {
@@ -59,14 +59,17 @@ public struct InjectUIViewPreviewMacro: DeclarationMacro {
 			      }
 			    }
 			}
-
-			@available(iOS 17.0, macOS 14.10, tvOS 17.0, *)
-			#Preview {
-			    \(statement)
-			}
 			#endif
 			""",
 		]
+		if context.column(of: node) > 1 {
+			result += [
+				.previewsVar,
+				.previewsStruct(statement),
+				representable(uiKit: true, controller: false)
+			]
+		}
+		return result
 	}
 }
 
@@ -97,7 +100,7 @@ public struct InjectUIViewControllerPreviewMacro: DeclarationMacro {
 		in context: some MacroExpansionContext
 	) throws -> [DeclSyntax] {
 		let (name, statement) = try nameAndStatement(of: node, in: context)
-		return [
+		var result: [DeclSyntax] = [
 			"""
 			#if DEBUG
 			final class \(name) {
@@ -110,14 +113,17 @@ public struct InjectUIViewControllerPreviewMacro: DeclarationMacro {
 			      }()
 			    }
 			}
-
-			@available(iOS 17.0, macOS 14.10, tvOS 17.0, *)
-			#Preview {
-			    \(statement)
-			}
 			#endif
 			""",
 		]
+		if context.column(of: node) > 1 {
+			result += [
+				.previewsVar,
+				.previewsStruct(statement),
+				representable(uiKit: true, controller: true)
+			]
+		}
+		return result
 	}
 }
 
@@ -128,7 +134,7 @@ public struct InjectNSViewPreviewMacro: DeclarationMacro {
 		in context: some MacroExpansionContext
 	) throws -> [DeclSyntax] {
 		let (name, statement) = try nameAndStatement(of: node, in: context)
-		return [
+		var result: [DeclSyntax] = [
 		"""
 		#if DEBUG
 		final class \(name) {
@@ -160,14 +166,17 @@ public struct InjectNSViewPreviewMacro: DeclarationMacro {
 		        }
 		    }
 		}
-		
-		@available(iOS 17.0, macOS 14.10, tvOS 17.0, *)
-		#Preview {
-		\(statement)
-		}
 		#endif
 		""",
 		]
+		if context.column(of: node) > 1 {
+			result += [
+				.previewsVar,
+				.previewsStruct(statement),
+				representable(uiKit: false, controller: false)
+			]
+		}
+		return result
 	}
 }
 
@@ -178,7 +187,7 @@ public struct InjectNSViewControllerPreviewMacro: DeclarationMacro {
 		in context: some MacroExpansionContext
 	) throws -> [DeclSyntax] {
 		let (name, statement) = try nameAndStatement(of: node, in: context)
-		return [
+		var result: [DeclSyntax] = [
 	"""
 	#if DEBUG
 	final class \(name) {
@@ -192,14 +201,17 @@ public struct InjectNSViewControllerPreviewMacro: DeclarationMacro {
 	     previewWindow.makeKeyAndOrderFront(nil)
 	   }
 	}
-	
-	@available(iOS 17.0, macOS 14.10, tvOS 17.0, *)
-	#Preview {
-	   \(statement)
-	}
 	#endif
 	""",
 		]
+		if context.column(of: node) > 1 {
+			result += [
+				.previewsVar,
+				.previewsStruct(statement),
+				representable(uiKit: false, controller: true)
+			]
+		}
+		return result
 	}
 }
 
@@ -236,29 +248,32 @@ private func swiftUIMacro(
 		        previewWindow.contentViewController = NSHostingController(rootView: previews)
 		        previewWindow.makeKeyAndOrderFront(nil)
 		"""
-	return [
+	var result: [DeclSyntax] = [
 	"""
 	#if DEBUG
-	final class \(name): PreviewProvider {
-	
-		static var previews: Previews {
-			Previews()
-		}
-	
+	final class \(name) {
+
 		@objc class func injected() {
 		\(raw: injected)
 		}
-	
-	    struct Previews: View {
-	    \(perviewable)
-		    var body: some View {
-	        \(statement)
-	        }
-	    }
 	}
 	#endif
 	"""
 	]
+	if context.column(of: node) > 1 {
+		result += [
+			.previewsVar,
+		"""
+	 	struct Previews: View {
+	 	\(perviewable)
+	 		var body: some View {
+	 	 	\(statement)
+	 	 	}
+	 	}
+	 	"""
+		]
+	}
+	return result
 }
 
 private let uiWindowCode = """
@@ -294,6 +309,83 @@ private func nameAndStatement(
 }
 
 #endif
+
+private func representable(
+	uiKit: Bool,
+	controller: Bool
+) -> DeclSyntax {
+	let upPrefix = uiKit ? "UI" : "NS"
+	let lowPrefix = uiKit ? "ui" : "ns"
+	let cntr = controller ? "Controller" : ""
+	let sizeThatFits =
+"""
+	@available(iOS 16.0, tvOS 16.0, *)
+	func sizeThatFits(_ proposal: ProposedViewSize, uiView\(cntr): T, context: Context) -> CGSize? {
+		\(controller ? "let uiView: UIView = uiView\(cntr).view" : "")
+  		let size = CGSize(
+   			width: proposal.width ?? .infinity,
+   			height: proposal.height ?? .infinity
+		)
+		if !uiView.constraints.isEmpty {
+			return uiView.systemLayoutSizeFitting(size)
+		} else {
+			let intrinsic = uiView.intrinsicContentSize
+			if
+				proposal == .unspecified,
+				intrinsic.width != UIView.noIntrinsicMetric,
+				intrinsic.height != UIView.noIntrinsicMetric {
+				return intrinsic
+			}
+				return uiView.sizeThatFits(size)
+		}
+	}
+"""
+
+	return
+"""
+private struct Representable<T: \(raw: upPrefix)View\(raw: cntr)>: \(raw: upPrefix)View\(raw: cntr)Representable {
+
+	let create: () -> T
+
+	func make\(raw: upPrefix)View\(raw: cntr)(context: Context) -> T {
+		create()
+	}
+
+	func update\(raw: upPrefix)View\(raw: cntr)(_ \(raw: lowPrefix)View\(raw: cntr): T, context: Context) {}
+\(raw: uiKit ? sizeThatFits : "")
+}
+"""
+}
+
+private extension DeclSyntax {
+
+	static var previewsVar: DeclSyntax {
+		"""
+		static var previews: Previews {
+			Previews()
+		}
+		"""
+	}
+
+	static func previewsStruct(_ statement: CodeBlockItemListSyntax) -> DeclSyntax {
+   		"""
+   		struct Previews: View {
+   			var body: some View {
+   				Representable {
+   				\(statement)
+   				}
+   			}
+   		}
+   		"""
+	}
+}
+
+extension MacroExpansionContext {
+	
+	func column(of node: some SyntaxProtocol) -> Int {
+		Int(location(of: node)?.column.as(IntegerLiteralExprSyntax.self)?.literal.text ?? "") ?? 1
+	}
+}
 
 private struct SimpleError: LocalizedError, CustomStringConvertible {
 	var description: String
