@@ -42,8 +42,8 @@ For `UIView`/`NSView` or `UIViewController`/`NSViewController`, similar macros a
 
 ### XCode canvas
 
-> [!TIP]
-> To make this preview work with the Xcode canvas, wrap the body of this macro in a PreviewProvider type.
+To make this preview work with the Xcode canvas, wrap the body of this macro in a PreviewProvider type:
+
 ```swift
 enum Previews: PreviewProvider {
     #InjectPreview {
@@ -72,7 +72,7 @@ import PackageDescription
 let package = Package(
   name: "SomeProject",
   dependencies: [
-    .package(url: "https://github.com/dankinsoid/swift-inject-preview.git", from: "1.1.0")
+    .package(url: "https://github.com/dankinsoid/swift-inject-preview.git", from: "1.1.1")
   ],
   targets: [
     .target(
