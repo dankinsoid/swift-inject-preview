@@ -31,9 +31,9 @@ public struct InjectUIViewPreviewMacro: DeclarationMacro {
 		var result: [DeclSyntax] = [
 			"""
 			#if DEBUG
-			final class \(name) {
+			@MainActor final class \(name) {
 
-			 @MainActor @objc class func injected() {
+			   @objc class func injected() {
 					\(raw: uiWindowCode)
 
 			        window?.rootViewController = WrapperViewController {
@@ -103,9 +103,9 @@ public struct InjectUIViewControllerPreviewMacro: DeclarationMacro {
 		var result: [DeclSyntax] = [
 			"""
 			#if DEBUG
-			final class \(name) {
+			@MainActor final class \(name) {
 
-			 @MainActor @objc class func injected() {
+			 @objc class func injected() {
 			     \(raw: uiWindowCode)
 
 			      window?.rootViewController = {
@@ -137,9 +137,9 @@ public struct InjectNSViewPreviewMacro: DeclarationMacro {
 		var result: [DeclSyntax] = [
 		"""
 		#if DEBUG
-		final class \(name) {
+		@MainActor final class \(name) {
 		
-		  @MainActor @objc class func injected() {
+		    @objc class func injected() {
 		        \(raw: nsWindowCode)
 
 		        previewWindow.contentViewController = WrapperViewController {
@@ -190,9 +190,9 @@ public struct InjectNSViewControllerPreviewMacro: DeclarationMacro {
 		var result: [DeclSyntax] = [
 	"""
 	#if DEBUG
-	final class \(name) {
+	@MainActor final class \(name) {
 	
-	   @MainActor @objc class func injected() {
+	     @objc class func injected() {
 		 \(raw: nsWindowCode)
 	
 	     previewWindow.contentViewController = {
@@ -248,30 +248,31 @@ private func swiftUIMacro(
 		        previewWindow.contentViewController = NSHostingController(rootView: previews)
 		        previewWindow.makeKeyAndOrderFront(nil)
 		"""
+	let isNested = context.column(of: node) > 1
+	let previewsStruct: DeclSyntax =  """
+	struct Previews: View {
+	\(perviewable)
+		var body: some View {
+		\(statement)
+		}
+	}
+	"""
 	var result: [DeclSyntax] = [
 	"""
 	#if DEBUG
-	final class \(name) {
+	@MainActor final class \(name) {
 
-	@MainActor @objc class func injected() {
+	  @objc class func injected() {
 		\(raw: injected)
 		}
+		\(raw: isNested ? "" : DeclSyntax.previewsVar)
+		\(raw: isNested ? "" : previewsStruct)
 	}
 	#endif
 	"""
 	]
-	if context.column(of: node) > 1 {
-		result += [
-			.previewsVar,
-		"""
-	 	struct Previews: View {
-	 	\(perviewable)
-	 		var body: some View {
-	 	 	\(statement)
-	 	 	}
-	 	}
-	 	"""
-		]
+	if isNested {
+		result += [.previewsVar, previewsStruct]
 	}
 	return result
 }
