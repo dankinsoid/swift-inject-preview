@@ -122,11 +122,3 @@ public macro InjectPreview<T: NSView>(_ body: @MainActor () -> T) = #externalMac
 @freestanding(declaration, names: named(previews), named(Previews), named(Representable))
 public macro InjectPreview<T: NSViewController>(_ body: @MainActor () -> T) = #externalMacro(module: "SwiftInjectPreviewMacro", type: "InjectNSViewControllerPreviewMacro")
 #endif
-
-enum Previews: PreviewProvider {
-	#InjectPreview {
-		let text = NSText()
-		text.string = "Hello, World!"
-		return text
-	}
-}

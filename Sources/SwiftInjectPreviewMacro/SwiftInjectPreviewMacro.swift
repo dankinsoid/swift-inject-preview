@@ -33,7 +33,7 @@ public struct InjectUIViewPreviewMacro: DeclarationMacro {
 			#if DEBUG
 			final class \(name) {
 
-			    @objc class func injected() {
+			 @MainActor @objc class func injected() {
 					\(raw: uiWindowCode)
 
 			        window?.rootViewController = WrapperViewController {
@@ -105,7 +105,7 @@ public struct InjectUIViewControllerPreviewMacro: DeclarationMacro {
 			#if DEBUG
 			final class \(name) {
 
-			    @objc class func injected() {
+			 @MainActor @objc class func injected() {
 			     \(raw: uiWindowCode)
 
 			      window?.rootViewController = {
@@ -139,7 +139,7 @@ public struct InjectNSViewPreviewMacro: DeclarationMacro {
 		#if DEBUG
 		final class \(name) {
 		
-			@objc class func injected() {
+		  @MainActor @objc class func injected() {
 		        \(raw: nsWindowCode)
 
 		        previewWindow.contentViewController = WrapperViewController {
@@ -192,7 +192,7 @@ public struct InjectNSViewControllerPreviewMacro: DeclarationMacro {
 	#if DEBUG
 	final class \(name) {
 	
-	   @objc class func injected() {
+	   @MainActor @objc class func injected() {
 		 \(raw: nsWindowCode)
 	
 	     previewWindow.contentViewController = {
@@ -253,7 +253,7 @@ private func swiftUIMacro(
 	#if DEBUG
 	final class \(name) {
 
-		@objc class func injected() {
+	@MainActor @objc class func injected() {
 		\(raw: injected)
 		}
 	}
